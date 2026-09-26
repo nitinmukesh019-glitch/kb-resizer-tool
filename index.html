@@ -40,11 +40,21 @@
             max-width: 480px;
         }
 
-        h1 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            text-align: center;
-            color: #0f172a;
+        /* Logo container styling for perfect centering and spacing */
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+
+        /* Mobile-responsive logo styling */
+        .logo-img {
+            max-width: 80%;
+            height: auto;
+            max-height: 80px; /* Prevents oversized logos from breaking layout */
+            object-fit: contain;
         }
 
         .form-group {
@@ -56,12 +66,6 @@
             margin-bottom: 8px;
             font-weight: 500;
             font-size: 0.9rem;
-        }
-
-        /* Custom file upload styling to keep it clean */
-        .file-input-wrapper {
-            position: relative;
-            display: block;
         }
 
         input[type="file"] {
@@ -118,10 +122,6 @@
             line-height: 1.5;
         }
 
-        .hidden-text {
-            display: none;
-        }
-
         .download-link {
             display: inline-block;
             margin-top: 10px;
@@ -150,9 +150,12 @@
 <body>
 
     <div class="container">
-        <h1>Exact-KB Resizer</h1>
+        <!-- Logo section replacing the old h1 heading -->
+        <div class="logo-container">
+            <img src="Untitled" alt="Logo" class="logo-img">
+        </div>
 
-        <!-- ALL UI Elements are explicitly placed and visible here -->
+        <!-- UI Elements (Always visible) -->
         <div class="form-group">
             <label for="imageInput">Select Photo</label>
             <input type="file" id="imageInput" accept="image/jpeg, image/png, image/webp">
@@ -208,7 +211,6 @@
                 const img = new Image();
                 img.src = event.target.result;
                 img.onload = function () {
-                    // Use a canvas to compress the image iteratively to hit the target file size
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     
@@ -221,16 +223,13 @@
                     let high = 1.0;
                     let resultBlob = null;
                     
-                    // Simple binary search loop to approximate the exact KB target safely
                     function iterativeCompress() {
                         canvas.toBlob((blob) => {
                             const currentKB = blob.size / 1024;
                             
-                            // If we are close enough, or bounds match, finalize
                             if ((high - low) < 0.02 || currentKB <= targetKB) {
                                 resultBlob = blob;
                                 if (currentKB > targetKB && quality > 0.1) {
-                                    // Forced step down if still over target
                                     quality -= 0.05;
                                     iterativeCompress();
                                     return;
@@ -241,7 +240,7 @@
                                     high = quality;
                                 } else {
                                     low = quality;
-                                    resultBlob = blob; // save last working under-limit blob
+                                    resultBlob = blob;
                                 }
                                 quality = (low + high) / 2;
                                 iterativeCompress();
@@ -259,7 +258,6 @@
             previewImg.src = url;
             downloadLink.href = url;
             
-            // Format filename safely based on target size
             const originalName = imageInput.files[0].name.split('.').slice(0, -1).join('.');
             downloadLink.download = `${originalName}_compressed_${Math.round(sizeKB)}kb.jpg`;
 
