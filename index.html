@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exact-KB Form Resizer</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --border: #e2e8f0;
+            --success: #16a34a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            margin-bottom: 20px;
+        }
+
+        header {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        p.subtitle {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-main);
+        }
+
+        /* Drag and Drop Zone */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            background: #fafafa;
+        }
+
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--primary);
+            background: #f0f7ff;
+        }
+
+        .upload-zone svg {
+            width: 40px;
+            height: 40px;
+            fill: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .upload-zone p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .upload-zone span {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Numeric Inputs */
+        input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Preview Area */
+        .preview-box {
+            display: none;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .preview-grid img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #fff;
+        }
+
+        .file-info p {
+            font-size: 0.875rem;
+            margin-bottom: 2px;
+        }
+
+        .file-name {
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .file-size {
+            color: var(--text-muted);
+        }
+
+        /* Action Button */
+        button {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:disabled {
+            background-color: var(--border);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        /* Result Area */
+        .result-box {
+            display: none;
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .result-box p {
+            color: var(--success);
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+
+        .download-btn {
+            background-color: var(--success);
+            display: inline-block;
+            text-decoration: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: background-color 0.2s;
+            width: auto;
+        }
+
+        .download-btn:hover {
+            background-color: #15803d;
+        }
+
+        /* Ad Spaces */
+        .ad-space {
+            width: 100%;
+            background: #ebebeb;
+            color: #7a7a7a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px dashed #dcdcdc;
+        }
+
+        .ad-top-bottom {
+            max-width: 728px;
+            height: 90px;
+        }
+
+        /* Responsive Tweaks */
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            .ad-top-bottom {
+                max-width: 320px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Placeholder Ad Space (Standard Leaderboard) -->
+    <div class="ad-space ad-top-bottom">ADVERTISEMENT (728x90 / 320x50)</div>
+
+    <div class="container">
+        <header>
+            <h1>Exact-KB Form Resizer</h1>
+            <p class="subtitle">Compress photos & signatures to fit strict online form limits</p>
+        </header>
+
+        <main>
+            <!-- Image Upload Trigger -->
+            <div class="form-group">
+                <label>Select Photo or Signature</label>
+                <div class="upload-zone" id="drop-zone">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+                    </svg>
+                    <p>Drag & drop your file here or <span>browse</span></p>
+                    <input type="file" id="file-input" accept="image/*">
+                </div>
+            </div>
+
+            <!-- Real-time File Details Preview -->
+            <div class="preview-box" id="preview-box">
+                <div class="preview-grid">
+                    <img id="img-preview" src="" alt="Source preview">
+                    <div class="file-info">
+                        <p class="file-name" id="info-name">-</p>
+                        <p class="file-size" id="info-size">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exact target file size constraint -->
+            <div class="form-group" style="margin-top: 20px;">
+                <label for="target-size">Maximum Desired File Size (KB)</label>
+                <input type="number" id="target-size" value="50" min="5" max="5000">
+            </div>
+
+            <button id="process-btn" disabled>Resize & Compress Image</button>
+
+            <!-- Success Box & Download link -->
+            <div class="result-box" id="result-box">
+                <p id="result-status">Success! File compressed beautifully.</p>
+                <a href="#" class="download-btn" id="download-link" download="resized-image.jpg">Download Resized Image</a>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bottom Placeholder Ad Space -->
+    <div class="ad-space ad-top-bottom">ADVERTISEMENT (728x90 / 320x50)</div>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const previewBox = document.getElementById('preview-box');
+        const imgPreview = document.getElementById('img-preview');
+        const infoName = document.getElementById('info-name');
+        const infoSize = document.getElementById('info-size');
+        const targetSizeInput = document.getElementById('target-size');
+        const processBtn = document.getElementById('process-btn');
+        const resultBox = document.getElementById('result-box');
+        const resultStatus = document.getElementById('result-status');
+        const downloadLink = document.getElementById('download-link');
+
+        let sourceImage = null;
+        let originalFileName = "image.jpg";
+
+        // Drag and drop events
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            }, false);
+        });
