@@ -2,16 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Exact-KB Form Resizer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exact-KB Image Resizer</title>
     <style>
         :root {
             --primary-color: #2563eb;
             --primary-hover: #1d4ed8;
             --bg-color: #f8fafc;
             --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
+            --text-color: #1e293b;
             --border-color: #cbd5e1;
         }
 
@@ -19,222 +18,253 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         body {
             background-color: var(--bg-color);
-            color: var(--text-main);
+            color: var(--text-color);
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 16px;
         }
 
         .container {
-            width: 100%;
-            max-width: 500px;
             background: var(--card-bg);
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            width: 100%;
+            max-width: 480px;
         }
 
         h1 {
             font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #0f172a;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
             margin-bottom: 8px;
-            text-align: center;
+            font-weight: 500;
+            font-size: 0.9rem;
         }
 
-        p.subtitle {
-            color: var(--text-muted);
-            font-size: 0.875rem;
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        /* 
-           Crucial iOS Safari Fix: Wrap everything in a label element. 
-           Tapping any child element inside a label automatically forwards 
-           the native touch event directly to the nested input element.
-        */
-        .upload-area {
+        /* Custom file upload styling to keep it clean */
+        .file-input-wrapper {
             position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 2px dashed var(--border-color);
-            border-radius: 12px;
-            padding: 40px 20px;
-            background: #fafafa;
-            cursor: pointer;
-            transition: background 0.2s ease, border-color 0.2s ease;
-            text-align: center;
+            display: block;
         }
 
-        .upload-area.dragover {
-            background: #eff6ff;
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            background: #f1f5f9;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="number"]:focus {
             border-color: var(--primary-color);
         }
 
-        /* 
-           iOS Safari Pointer Bug Fix: 
-           Instead of 'display: none', we use opacity/sizing tricks. 
-           Safari often ignores programmatic triggers on fully non-rendered inputs.
-        */
-        .file-input {
-            position: absolute;
-            top: 0;
-            left: 0;
+        button {
             width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            user-select: none;
-        }
-
-        .upload-text {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-main);
-            margin-bottom: 4px;
-        }
-
-        .upload-hint {
-            font-size: 0.8125rem;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-        }
-
-        .browse-btn {
             background-color: var(--primary-color);
             color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 0.875rem;
             border: none;
-            pointer-events: none; /* Let clicks pass directly into the underlying file element/label */
-            display: inline-block;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
 
-        .preview-container {
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .status-panel {
             margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .hidden-text {
             display: none;
+        }
+
+        .download-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: var(--primary-color);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .download-link:hover {
+            text-decoration: underline;
+        }
+
+        .preview-box {
+            margin-top: 15px;
             text-align: center;
         }
 
-        .preview-image {
+        .preview-box img {
             max-width: 100%;
-            max-height: 250px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .file-info {
-            margin-top: 8px;
-            font-size: 0.875rem;
-            color: var(--text-muted);
+            max-height: 200px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Exact-KB Form Resizer</h1>
-        <p class="subtitle">Upload your picture to scale and resize assets instantly</p>
+        <h1>Exact-KB Resizer</h1>
 
-        <!-- Use a label tag container to encapsulate native click forwarding -->
-        <label class="upload-area" id="dropZone">
-            <!-- 
-               Native File Input hidden safely with opacity. 
-               Do NOT use capture="camera" if you want to explicitly bring up the native iOS 
-               Photo Gallery selector menu (Photo Library / Take Photo / Choose File).
-            -->
-            <input type="file" id="fileInput" class="file-input" accept="image/*">
-            
-            <div class="upload-icon">📸</div>
-            <div class="upload-text">Select Photo or Drag Here</div>
-            <div class="upload-hint">Supports JPEG, PNG, WEBP</div>
-            <div class="browse-btn">Choose File</div>
-        </label>
+        <!-- ALL UI Elements are explicitly placed and visible here -->
+        <div class="form-group">
+            <label for="imageInput">Select Photo</label>
+            <input type="file" id="imageInput" accept="image/jpeg, image/png, image/webp">
+        </div>
 
-        <div class="preview-container" id="previewContainer">
-            <img src="" alt="Preview" class="preview-image" id="previewImage">
-            <div class="file-info" id="fileInfo"></div>
+        <div class="form-group">
+            <label for="targetSize">Max KB Target</label>
+            <input type="number" id="targetSize" value="50" min="1" placeholder="e.g., 50">
+        </div>
+
+        <button id="compressBtn">Compress Image</button>
+
+        <!-- Dynamic Output Panel -->
+        <div class="status-panel" id="statusPanel">
+            <div id="statusText">Ready. Choose an image and target size to begin.</div>
+            <div class="preview-box" id="previewBox" style="display: none;">
+                <img id="previewImg" src="" alt="Compressed preview">
+                <br>
+                <a id="downloadLink" class="download-link" href="#" download="compressed-image.jpg">Download Compressed Image</a>
+            </div>
         </div>
     </div>
 
     <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const previewContainer = document.getElementById('previewContainer');
-        const previewImage = document.getElementById('previewImage');
-        const fileInfo = document.getElementById('fileInfo');
+        const imageInput = document.getElementById('imageInput');
+        const targetSizeInput = document.getElementById('targetSize');
+        const compressBtn = document.getElementById('compressBtn');
+        const statusText = document.getElementById('statusText');
+        const previewBox = document.getElementById('previewBox');
+        const previewImg = document.getElementById('previewImg');
+        const downloadLink = document.getElementById('downloadLink');
 
-        // Prevent defaults for drag / drop events to ensure desktop compatibility
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
-            document.body.addEventListener(eventName, preventDefaults, false);
-        });
+        compressBtn.addEventListener('click', () => {
+            const file = imageInput.files[0];
+            const targetKB = parseFloat(targetSizeInput.value);
 
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        // Highlight drop zone on drag over
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
-        });
-
-        // Handle dropped files
-        dropZone.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            if (files.length > 0) {
-                fileInput.files = files; // Sync drop data back to input field
-                handleFiles(files[0]);
-            }
-        });
-
-        // Handle standard input selections (Taps / Clicks)
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFiles(e.target.files[0]);
-            }
-        });
-
-        // Process file and generate UI updates
-        function handleFiles(file) {
-            if (!file.type.startsWith('image/')) {
-                alert('Please upload an image file.');
+            if (!file) {
+                statusText.innerHTML = "<span style='color: #ef4444;'>Please select an image file first.</span>";
                 return;
             }
 
+            if (!targetKB || targetKB <= 0) {
+                statusText.innerHTML = "<span style='color: #ef4444;'>Please enter a valid Max KB target.</span>";
+                return;
+            }
+
+            statusText.innerText = "Processing image...";
+            previewBox.style.display = "none";
+
             const reader = new FileReader();
             reader.readAsDataURL(file);
-            reader.onloadend = function() {
-                previewImage.src = reader.result;
-                previewContainer.style.display = 'block';
-                
-                // Format file metadata nicely
-                const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
-                fileInfo.textContent = `${file.name} (${sizeInMB} MB)`;
-            }
+            reader.onload = function (event) {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = function () {
+                    // Use a canvas to compress the image iteratively to hit the target file size
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+
+                    let quality = 0.90;
+                    let low = 0.01;
+                    let high = 1.0;
+                    let resultBlob = null;
+                    
+                    // Simple binary search loop to approximate the exact KB target safely
+                    function iterativeCompress() {
+                        canvas.toBlob((blob) => {
+                            const currentKB = blob.size / 1024;
+                            
+                            // If we are close enough, or bounds match, finalize
+                            if ((high - low) < 0.02 || currentKB <= targetKB) {
+                                resultBlob = blob;
+                                if (currentKB > targetKB && quality > 0.1) {
+                                    // Forced step down if still over target
+                                    quality -= 0.05;
+                                    iterativeCompress();
+                                    return;
+                                }
+                                finalizeImage(blob, currentKB);
+                            } else {
+                                if (currentKB > targetKB) {
+                                    high = quality;
+                                } else {
+                                    low = quality;
+                                    resultBlob = blob; // save last working under-limit blob
+                                }
+                                quality = (low + high) / 2;
+                                iterativeCompress();
+                            }
+                        }, 'image/jpeg', quality);
+                    }
+
+                    iterativeCompress();
+                };
+            };
+        });
+
+        function finalizeImage(blob, sizeKB) {
+            const url = URL.createObjectURL(blob);
+            previewImg.src = url;
+            downloadLink.href = url;
+            
+            // Format filename safely based on target size
+            const originalName = imageInput.files[0].name.split('.').slice(0, -1).join('.');
+            downloadLink.download = `${originalName}_compressed_${Math.round(sizeKB)}kb.jpg`;
+
+            statusText.innerHTML = `<strong>Success!</strong><br>Original Size: ${Math.round(imageInput.files[0].size / 1024)} KB<br>New Size: ${sizeKB.toFixed(2)} KB`;
+            previewBox.style.display = "block";
         }
     </script>
 </body>
